@@ -1,15 +1,9 @@
 import { StatusBar } from "expo-status-bar";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  Button,
-  FlatList,
-  Modal,
-  Pressable,
-} from "react-native";
+import { StyleSheet, Text, View, Button, Modal, Pressable } from "react-native";
 import { useState } from "react";
+import TaskInput from "./src/Components/Task/TaskInput";
+import TasksList from "./src/Components/Task/TaskList";
+import DeleteModal from "./src/Components/Task/DeleteModal";
 
 export default function App() {
   const [userInput, setUserInput] = useState("");
@@ -54,49 +48,19 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tasks App</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.userInput}
-          value={userInput}
-          onChangeText={(text) => setUserInput(text)}
-        />
-        <Pressable
-          onPress={handleAddTask}
-          accessibilityLabel="Add task"
-          style={styles.addTask}
-        >
-          <Text style={{ color: "white" }}>+</Text>
-        </Pressable>
-      </View>
+      <TaskInput
+        userInput={userInput}
+        setUserInput={setUserInput}
+        handleAddTask={handleAddTask}
+      />
+      <TasksList tasksListDown={tasks} renderTaskItemUp={renderTaskItem} />
       <View style={styles.tasksContainer}>
-        <FlatList
-          data={tasks}
-          renderItem={renderTaskItem}
-          keyExtractor={(item) => item.id}
-          style={{ width: "80%", flex: 1 }}
-          contentContainerStyle={
-            tasks.length === 0 ? { flexGrow: 1, justifyContent: "center" } : {}
-          }
+        <DeleteModal
+          modalVisibleDown={showModal}
+          taskSelectedDown={selectedTask}
+          handleDeleteTaskUp={() => deleteTask(selectedTask.id)}
+          setModalVisibleUp={setShowModal}
         />
-        <Modal visible={showModal} animationType="slide">
-          <Text style={styles.modalText}>
-            Are you sure you want to delete this task?
-          </Text>
-          <View style={styles.modalContainer}>
-            <Button
-              title="Yes, delete"
-              accessibilityLabel="Delete task"
-              color="red"
-              onPress={() => deleteTask(selectedTask.id)}
-            />
-            <Button
-              title="Cancel"
-              accessibilityLabel="Cancel"
-              color="#C0C0C0"
-              onPress={() => setShowModal(false)}
-            />
-          </View>
-        </Modal>
       </View>
       <StatusBar style="auto" />
     </View>
@@ -109,10 +73,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     paddingTop: 50,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
   },
   tasksContainer: {
     width: "80%",
@@ -137,15 +97,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
   },
-  userInput: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    margin: 12,
-    padding: 10,
-    width: "80%",
-    borderRadius: 16,
-  },
   tasks: {
     padding: 12,
     borderBottomWidth: 1,
@@ -156,13 +107,5 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 18,
     padding: 16,
-  },
-  addTask: {
-    backgroundColor: "#2196F3",
-    padding: 10,
-    borderRadius: 16,
-    height: 40,
-    width: 40,
-    alignItems: "center",
   },
 });
